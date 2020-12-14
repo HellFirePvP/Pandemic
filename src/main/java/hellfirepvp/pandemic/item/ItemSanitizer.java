@@ -11,6 +11,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.DrinkHelper;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
+import net.minecraftforge.event.ForgeEventFactory;
 
 /**
  * This class is part of the Pandemic Mod
@@ -22,15 +23,21 @@ public class ItemSanitizer extends Item {
 
     public ItemSanitizer() {
         super(new Properties()
-                .maxStackSize(16)
+                .maxDamage(4)
                 .group(ItemGroup.FOOD));
     }
 
     public ItemStack onItemUseFinish(ItemStack stack, World world, LivingEntity entityLiving) {
         entityLiving.removePotionEffect(EffectsPD.DISEASE);
-        if (!(entityLiving instanceof PlayerEntity) || !((PlayerEntity) entityLiving).abilities.isCreativeMode) {
-            stack.shrink(1);
+        if (entityLiving instanceof PlayerEntity && ((PlayerEntity) entityLiving).abilities.isCreativeMode) {
+            return stack;
         }
+        stack.damageItem(1, entityLiving, (entity) -> {
+            entity.sendBreakAnimation(Hand.MAIN_HAND);
+            if (entity instanceof PlayerEntity) {
+                ForgeEventFactory.onPlayerDestroyItem((PlayerEntity) entity, stack, Hand.MAIN_HAND);
+            }
+        });
         return stack;
     }
 
@@ -46,6 +53,6 @@ public class ItemSanitizer extends Item {
 
     @Override
     public int getUseDuration(ItemStack stack) {
-        return 48;
+        return 32;
     }
 }

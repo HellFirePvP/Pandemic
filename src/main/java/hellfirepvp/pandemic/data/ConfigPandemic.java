@@ -22,6 +22,11 @@ public class ConfigPandemic {
 
     public final ForgeConfigSpec.ConfigValue<List<? extends String>> configuredEntities;
     public final ForgeConfigSpec.DoubleValue applyChance;
+    public final ForgeConfigSpec.DoubleValue applyChanceDisease;
+    public final ForgeConfigSpec.DoubleValue applySpawnChance;
+
+    public final ForgeConfigSpec.DoubleValue spreadRadius;
+    public final ForgeConfigSpec.DoubleValue spreadSecondChance;
 
     public final ForgeConfigSpec.IntValue maxRadius;
     public final ForgeConfigSpec.DoubleValue chancePerTick;
@@ -45,8 +50,14 @@ public class ConfigPandemic {
                 .comment("Define the entity types that should apply the disease on hit. List of all known Types: (" + allStr + ")")
                 .defineList("entities", Lists.newArrayList(phantomDefault), obj -> obj instanceof String);
         applyChance = builder
-                .comment("Defines the chance on hit if the disease should be applied. 0 = 0%, 1 = 100% chance")
+                .comment("Defines the chance on hit if the disease should be applied. !!This means if the mob attacking you HAS NO DISEASE!! 0 = 0%, 1 = 100% chance")
                 .defineInRange("applyChance", 0.05, 0, 1);
+        applyChanceDisease = builder
+                .comment("Defines the chance on hit if the disease should be applied. !!This means if the mob attacking you HAS THE DISEASE!! 0 = 0%, 1 = 100% chance")
+                .defineInRange("applyChanceDisease", 0.75, 0, 1);
+        applySpawnChance = builder
+                .comment("Defines the chance that a mob will spawn with GooVID-20 when it gets spawned. 0 = 0%, 1 = 100% chance")
+                .defineInRange("applySpawnChance", 0.2, 0, 1);
 
         maxRadius = builder
                 .comment("Defines the maximum radius in which blocks might get placed.")
@@ -57,6 +68,13 @@ public class ConfigPandemic {
         tickDelay = builder
                 .comment("Defines the minimum ticks between two block placements")
                 .defineInRange("tickDelay", 10, 0, 200_000);
+
+        spreadRadius = builder
+                .comment("Defines the radius in blocks (spherically) that a mob or player will spread GooVID-20 to others nearby.")
+                .defineInRange("spreadRadius", 2.5F, 0, 16F);
+        spreadSecondChance = builder
+                .comment("Defines the chance that a mob will spread GooVID-20 to others nearby per second (20 ticks). 0 = 0%, 1 = 100% chance")
+                .defineInRange("spreadSecondChance", 0.05, 0, 1);
 
         configuredBlocks = builder
                 .comment("Define the blocks it'll place at random. Each entry is weighted the same. Block will be randomly chosen.")
