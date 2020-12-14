@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[35,)"
+license="All rights reserved"
+issueTrackerURL="http://my.issue.tracker/"
+[[mods]]
+modId="pandemic" #mandatory
+version="${file.jarVersion}"
+displayName="Pandemic"
+displayURL="http://example.com/"
+credits="To 2020 for inspiring whatever this is"
+authors="Not me!"
+description='''A configurable mod for a block-placing spreadable disease'''
+[[dependencies.pandemic]]
+    modId="forge"
+    mandatory=true
+    versionRange="[35,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.pandemic]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.4,1.17)"
+    ordering="NONE"
+    side="BOTH"

@@ -1,0 +1,11 @@
+{
+    "sneeze": {
+        "category": "player",
+        "sounds": [
+            {
+                "name": "pandemic:gooper_popping",
+                "stream": false
+            }
+        ]
+    }
+}
