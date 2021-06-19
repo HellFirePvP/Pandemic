@@ -14,11 +14,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.EffectType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
@@ -48,6 +52,13 @@ public class EffectDisease extends Effect {
     public void performEffect(LivingEntity livingEntity, int amplifier) {
         World world = livingEntity.getEntityWorld();
         if (world.isRemote() || !livingEntity.isAlive()) {
+            return;
+        }
+        if (livingEntity instanceof PlayerEntity && (livingEntity.isSpectator() || ((PlayerEntity) livingEntity).isCreative())) {
+            MinecraftServer srv = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
+            srv.enqueue(new TickDelayedTask(1, () -> {
+                livingEntity.removePotionEffect(EffectsPD.DISEASE);
+            }));
             return;
         }
         ConfigPandemic cfg = Pandemic.getInstance().getConfig();
@@ -82,7 +93,11 @@ public class EffectDisease extends Effect {
             return;
         }
 
-        int range = cfg.maxRadius.get() - 2;
+        int range = cfg.maxRadius.get();
+        if (range <= 0) {
+            return;
+        }
+
         List<? extends String> configuredBlocks = cfg.configuredBlocks.get();
         List<BlockState> blocks = configuredBlocks.stream()
                 .map(ResourceLocation::new)
@@ -98,9 +113,9 @@ public class EffectDisease extends Effect {
 
         for (int i = 0; i < 3; i++) {
             BlockPos at = player.getPosition().up()
-                    .add((2 + rand.nextInt(range)) * (rand.nextBoolean() ? 1 : -1),
-                            (2 + rand.nextInt(range)) * (rand.nextBoolean() ? 1 : -1),
-                            (2 + rand.nextInt(range)) * (rand.nextBoolean() ? 1 : -1));
+                    .add(rand.nextInt(range + 1) * (rand.nextBoolean() ? 1 : -1),
+                            rand.nextInt(range + 1) * (rand.nextBoolean() ? 1 : -1),
+                            rand.nextInt(range + 1) * (rand.nextBoolean() ? 1 : -1));
             for (int yMov = 0; yMov < 5; yMov++) {
                 if (BlockUtils.isReplaceable(world, at.down(), state)) {
                     at = at.down();
